@@ -1,0 +1,132 @@
+{
+  "evidence_bundle_profile_version": "0.1",
+  "profile_id": "grid-operator-bias-coverage-v0.1",
+  "title": "Grid Operator Bias Coverage Lab (EnergyTech)",
+  "purpose": "Profile of the Evidence Bundle spec scoped to pre-deployment + ongoing-monitoring bias / equity-coverage evidence for AI tools used by electric utilities, grid operators, and pipeline operators in load shed allocation, outage restoration prioritization, demand response participation, EV charging deployment, rate-class design, energy-efficiency program targeting, and low-income program enrollment. Anchored to EPA Title VI environmental justice + Justice40 Initiative + state PUC environmental-justice impact assessment requirements (CA, MA, IL, WA) + CalEnviroScreen / NY DAC / EPA EJSCREEN designation methodologies. UNLIKE prior verticals' bias labs which focus on individual decisioning, this lab focuses on POPULATION-LEVEL equity in essential service delivery — the harm is uneven distribution of critical infrastructure outcomes, not uneven treatment of individual applicants.",
+  "applies_to": [
+    "investor-owned-utility",
+    "publicly-owned-utility",
+    "cooperative-utility",
+    "rural-electric-cooperative",
+    "iso-rto-operator",
+    "balancing-authority",
+    "distribution-utility",
+    "ai-vendor-providing-tools-to-grid-environment"
+  ],
+  "subgroup_taxonomies": {
+    "ej_designation_epa_ejscreen": {
+      "source": "EPA EJSCREEN environmental justice screening + Justice40 Initiative (Climate and Economic Justice Screening Tool, CEJST)",
+      "values": ["ej-designated-yes", "ej-designated-no", "data-unavailable"]
+    },
+    "state_disadvantaged_community_designation": {
+      "source": "State-specific designations — CalEnviroScreen 4.0 (CA), NY Climate Act Disadvantaged Communities (DAC), MA EJ Population Designation, IL Energy Communities, WA Health Disparities Index",
+      "values": ["dac-designated-yes", "dac-designated-no", "state-has-no-designation"]
+    },
+    "energy_burden_band": {
+      "source": "LEAD Tool (DOE Low-Income Energy Affordability Data) — % of household income spent on energy",
+      "values": ["high-energy-burden-over-6pct", "moderate-3-to-6pct", "low-under-3pct", "data-unavailable"]
+    },
+    "lmi_designation": {
+      "source": "AMI (Area Median Income) per HUD designation",
+      "values": ["below-80pct-ami", "80-120pct-ami", "above-120pct-ami", "data-unavailable"]
+    },
+    "tribal_land_status": {
+      "source": "BIA tribal-land geographic designation",
+      "values": ["tribal-land-yes", "tribal-land-no"]
+    },
+    "rural_urban_band": {
+      "source": "USDA-ERS Rural-Urban Continuum Codes",
+      "values": ["metropolitan", "non-metropolitan-rural", "frontier"]
+    },
+    "renter_owner_status": {
+      "source": "Census American Community Survey",
+      "values": ["renter-occupied", "owner-occupied", "mixed-mobile-home-park", "data-unavailable"]
+    },
+    "critical_medical_equipment_household": {
+      "source": "Utility-reported medical baseline + critical-care customer registry",
+      "values": ["registered-critical-medical-equipment", "self-reported-medical-need", "not-registered"]
+    },
+    "limited_english_proficiency": {
+      "source": "Census American Community Survey + utility customer language preference",
+      "values": ["lep-yes", "lep-no", "data-unavailable"]
+    }
+  },
+  "additional_dimensions": [
+    {"id": "census-tract-id",                              "rationale": "Spatial granularity for load-shed + restoration + DR + EV charging equity"},
+    {"id": "service-territory-county-or-cooperative",      "rationale": "Distinguishes IOU vs publicly-owned vs cooperative territory patterns"},
+    {"id": "feeder-or-circuit-id-tokenized",                "rationale": "Distribution-level outcome attribution — feeder-level equity patterns"},
+    {"id": "duration-of-outage-minutes-band",               "rationale": "Restoration-priority equity — measure not just IF restored but HOW LONG"},
+    {"id": "ev-charging-port-deployment-density-per-capita","rationale": "EV equity — count of public chargers per 1000 residents"},
+    {"id": "demand-response-enrollment-rate-by-subgroup",   "rationale": "DR program access equity"},
+    {"id": "low-income-program-enrollment-rate-by-subgroup","rationale": "LIHEAP, percentage-of-income-payment-plan, ratepayer-assistance equity"}
+  ],
+  "thresholds": {
+    "minimum_subgroup_n_per_census_tract": 100,
+    "performance_gap_alert_threshold": "20pp-absolute-OR-disparate-impact-ratio-below-0.80",
+    "disparate_impact_ratio_threshold": 0.80,
+    "freshness_window_critical_event_load_shed": "P7D",
+    "freshness_window_outage_restoration": "P30D",
+    "freshness_window_program_enrollment": "P90D",
+    "freshness_window_annual_planning": "P365D"
+  },
+  "required_metrics": [
+    "load-shed-event-frequency-per-subgroup-census-tract",
+    "load-shed-event-duration-minutes-per-subgroup-census-tract",
+    "outage-restoration-time-per-subgroup-census-tract",
+    "outage-frequency-per-subgroup-census-tract",
+    "demand-response-program-enrollment-rate-per-subgroup",
+    "demand-response-payment-per-participating-household-per-subgroup",
+    "ev-charging-deployment-density-per-capita-per-subgroup",
+    "low-income-program-enrollment-rate-per-subgroup",
+    "low-income-program-arrearage-payoff-rate-per-subgroup",
+    "energy-efficiency-program-participation-rate-per-subgroup",
+    "rate-class-design-impact-burden-per-subgroup",
+    "critical-medical-equipment-household-outage-response-time"
+  ],
+  "coverage_status_taxonomy": [
+    {"code": "met",                                              "description": "n >= threshold AND gap <= threshold AND disparate-impact ratio >= 0.80"},
+    {"code": "below-threshold",                                  "description": "n < threshold for census tract"},
+    {"code": "not-represented",                                  "description": "n = 0 — subgroup absent from territory"},
+    {"code": "gap-exceeded",                                     "description": "n adequate but gap > threshold"},
+    {"code": "disparate-impact-violation",                       "description": "Disparate-impact ratio < 0.80 — state PUC environmental-justice impact assessment trigger; agency civil rights office referral pathway evaluation REQUIRED"},
+    {"code": "remediation-pending",                              "description": "Gap acknowledged with documented remediation"},
+    {"code": "load-shed-disparity-pattern-detected",             "description": "EnergyTech-unique: load shed events systematically favor non-DAC tracts — explicit alert; mandatory state PUC + DOJ Civil Rights notification consideration"},
+    {"code": "restoration-priority-disparity-pattern-detected",  "description": "EnergyTech-unique: outage restoration time systematically longer in DAC tracts — explicit alert"},
+    {"code": "critical-medical-equipment-response-time-violation","description": "EnergyTech-unique: registered critical-medical-equipment households had outage response time materially worse than baseline"},
+    {"code": "epa-ej-finding-pending",                           "description": "EPA Title VI environmental-justice finding pending (utility federal-financial-assistance recipient overlay)"},
+    {"code": "state-puc-ej-impact-assessment-failure",            "description": "State PUC environmental-justice impact assessment failed (CA D.24-06-008 / MA DPU 24-15 / WA UE-240122)"}
+  ],
+  "decision_document_requirements": {
+    "required_when": ["gap-exceeded", "not-represented", "disparate-impact-violation", "load-shed-disparity-pattern-detected", "restoration-priority-disparity-pattern-detected", "critical-medical-equipment-response-time-violation", "epa-ej-finding-pending", "state-puc-ej-impact-assessment-failure"]
+  },
+  "audit_stream_emission_conventions": {
+    "bias_finding_event_kind":      "energytech_bias.finding_recorded",
+    "bias_remediation_event_kind":  "energytech_bias.remediation_logged",
+    "epa-ej-finding_event_kind":    "energytech_bias.epa_ej_finding_received",
+    "state-puc-ej-failure_event_kind":"energytech_bias.state_puc_ej_assessment_failed"
+  },
+  "non_obligations_explicitly": [
+    "This bundle does NOT cover individual customer credit-decisioning bias — that's FinTech.",
+    "This bundle does NOT cover insurance underwriting bias for energy-related risks (storm damage, etc.) — InsurTech.",
+    "This bundle does NOT cover EEOC employment-bias for utility employees — HR Tech."
+  ],
+  "intended_consumers": [
+    "utility-ceo-or-chief-equity-officer",
+    "utility-environmental-justice-coordinator",
+    "iso-rto-equity-committee",
+    "state-puc-equity-program-staff",
+    "epa-environmental-justice-staff-during-title-vi-investigation",
+    "doj-civil-rights-staff-during-pattern-or-practice-investigation",
+    "tribal-energy-advocacy-organization",
+    "low-income-customer-advocacy-organization"
+  ],
+  "related": {
+    "kg_protocol_suite_url":              "https://suite.kineticgain.com",
+    "evidence_bundle_spec":              "https://github.com/mizcausevic-dev/evidence-bundle-spec",
+    "sibling_operator_audit_stream":     "https://github.com/mizcausevic-dev/grid-decision-record-audit-stream",
+    "sibling_state_puc_tracker":         "https://github.com/mizcausevic-dev/state-puc-ai-disclosure-tracker",
+    "sibling_compliance_evidence_bundle":"https://github.com/mizcausevic-dev/nerc-cip-readiness-evidence-bundle",
+    "sibling_vault_contract":            "https://github.com/mizcausevic-dev/grid-asset-data-vault-contract-profile",
+    "sibling_incident_card":             "https://github.com/mizcausevic-dev/grid-operations-incident-card-profile"
+  }
+}
